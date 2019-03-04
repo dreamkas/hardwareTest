@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.5)
+set(CMAKE_C_COMPILER /usr/local/usr/bin/arm-linux-gcc)
+PROJECT(hardwareTest C)
+set(CMAKE_C_FLAGS "-O2 -pipe -std=gnu99")
+set(SOURCE src)
+add_executable(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/src/hardwareTest.c)
