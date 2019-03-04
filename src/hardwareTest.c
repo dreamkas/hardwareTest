@@ -130,12 +130,31 @@ int TestDrawer(void)
  return 1;
 }
 
+void clcCrc16(unsigned char *data, unsigned short len)
+{
+    unsigned char x;
+    unsigned short tmp;
+
+    int crc16 = 0xFFFF;
+    unsigned char *ptr = data + 1;
+    tmp = len - 3;
+    while (tmp--)
+    {
+        x = crc16 >> 8 ^ *ptr++;
+        x ^= x >> 4;
+        crc16 = (crc16 << 8) ^ ((unsigned short) (x << 12)) ^ ((unsigned short) (x << 5)) ^ ((unsigned short) x);
+    }
+    *(data + len - 2) = crc16 & 0xff;
+    *(data + len - 1) = ((crc16 & 0xff00) >> 8);
+}
+
 int TestFN(void)
 {
  int i,cnt,fd;
  unsigned char buff[100];
- unsigned char getst[] = {4,1,0,48,255,205};
-
+ unsigned char getst[6] = {0x04, 0x01, 0x00, 0x20, 0x00, 0x00};
+ clcCrc16(getst, sizeof(getst)); 
+ 
  printf("Test FN.\n");
  fd=open("/dev/i2c-0",O_RDWR);
  if (fd < 0)
@@ -498,8 +517,13 @@ int main (int argc, char *argv[])
   case 1:  res=TestBeeper();
            break;
 
-  case 2:  res=TestFN();
-           break;
+  case 2:  
+       for (int i = 0; i < 5000; ++i)
+	   {
+	   	printf("Try count:\t%d\n", i);
+	   	res=TestFN();
+	   }
+	   break;
 
   case 3:  res=TestDrawer();
            break;
